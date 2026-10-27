@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام معامل القالب</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo & Tajawal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        tajawal: ['Tajawal', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#363b4e',
+                            darker: '#222634',
+                            bgDark: '#1a1d24',
+                            teal: '#1e8389',
+                            tealLight: '#26a3aa',
+                            tealDark: '#155d62',
+                            gold: '#d4af37',
+                            goldHover: '#b8982a',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float-small': 'floatSmall 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        floatSmall: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-4px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #1a1d24 0%, #252a36 50%, #1a1d24 100%);
+            min-height: 100vh;
+            color: #f1f5f9;
+        }
+
+        /* Smooth marquee animation */
+        @keyframes tickerMove {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .ticker-container {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            background: rgba(30, 131, 137, 0.15);
+            border-y: 1px solid rgba(212, 175, 55, 0.25);
+            backdrop-filter: blur(8px);
+        }
+
+        .ticker-text {
+            display: inline-block;
+            padding-right: 100%;
+            animation: tickerMove 20s linear infinite;
+        }
+
+        .ticker-container:hover .ticker-text {
+            animation-play-state: paused;
+        }
+
+        /* Compact Glassmorphic Card Styling */
+        .glass-card {
+            background: rgba(54, 59, 78, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: rgba(54, 59, 78, 0.75);
+            border-color: rgba(30, 131, 137, 0.5);
+            box-shadow: 0 20px 40px rgba(30, 131, 137, 0.25), 0 0 15px rgba(212, 175, 55, 0.15);
+        }
+
+        /* Ambient Glow Effect */
+        .bg-glow-teal {
+            background: radial-gradient(circle, rgba(30,131,137,0.18) 0%, rgba(0,0,0,0) 70%);
+        }
+        
+        .bg-glow-gold {
+            background: radial-gradient(circle, rgba(212,175,55,0.12) 0%, rgba(0,0,0,0) 70%);
+        }
+
+        /* Ripple Animation */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple::after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+
+        .ripple:active::after {
+            transform: scale(0, 0);
+            opacity: .3;
+            transition: 0s;
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between relative overflow-x-hidden select-none min-h-screen">
+
+    <!-- Ambient Glow Background Effects -->
+    <div class="absolute top-0 right-10 w-80 h-80 bg-glow-teal pointer-events-none rounded-full"></div>
+    <div class="absolute bottom-0 left-10 w-80 h-80 bg-glow-gold pointer-events-none rounded-full"></div>
+
+    <!-- MAIN HEADER SECTION -->
+    <header class="w-full relative z-20">
+        <!-- Top Bar with Title -->
+        <div class="bg-brand-darker/80 backdrop-blur-md py-4 px-4 border-b border-gray-800 text-center shadow-lg">
+            <div class="max-w-7xl mx-auto flex flex-col items-center justify-center">
+                <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-brand-gold animate-ping"></span>
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white drop-shadow-md">
+                        نظام معامل القالب
+                    </h1>
+                    <span class="w-2.5 h-2.5 rounded-full bg-brand-teal animate-ping"></span>
+                </div>
+                <p class="text-xs sm:text-sm text-gray-400 mt-1 font-medium tracking-wide">
+                    البوابة المركزية الموحدة للانتقال المباشر للأنظمة الإدارية والفنية
+                </p>
+            </div>
+        </div>
+
+        <!-- MOVING TICKER (MARQUEE) -->
+        <div class="ticker-container py-2">
+            <div class="ticker-text font-bold text-xs sm:text-sm flex items-center gap-8">
+                <span class="text-brand-gold flex items-center gap-2">
+                    <i class="fa-solid fa-crown text-xs"></i>
+                    المصمم مهند صباح 07860001600
+                </span>
+                <span class="text-gray-500">•</span>
+                <span class="text-teal-300">
+                    أهلاً بكم في المنصة المركزية الموحدة لنظام معامل القالب
+                </span>
+                <span class="text-gray-500">•</span>
+                <span class="text-brand-gold flex items-center gap-2">
+                    <i class="fa-solid fa-phone text-xs"></i>
+                    للتواصل والدعم الفني: المصمم مهند صباح 07860001600
+                </span>
+                <span class="text-gray-500">•</span>
+                <span class="text-gray-300">
+                    اضغط على أي نافذة للانتقال المباشر إلى النظام المطلوب
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- CENTER CONTENT AREA -->
+    <main class="flex-grow container mx-auto px-4 py-4 sm:py-6 flex flex-col items-center justify-center relative z-10 my-auto">
+
+        <!-- COMPACT / RESIZED LOGO -->
+        <div class="mb-5 sm:mb-6 text-center animate-float-small">
+            <div class="relative inline-block group">
+                <!-- Subtle Glowing Aura -->
+                <div class="absolute -inset-1.5 bg-gradient-to-r from-brand-teal via-brand-gold to-brand-teal rounded-2xl blur-md opacity-40 group-hover:opacity-70 transition duration-300"></div>
+                
+                <!-- Logo Box (Small & Compact) -->
+                <div class="relative bg-brand-darker/95 p-3.5 sm:p-4 rounded-2xl border border-gray-700/80 shadow-xl flex items-center justify-center">
+                    <svg class="w-16 h-20 sm:w-20 sm:h-24" viewBox="0 0 500 580" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Outer Hexagon Frame -->
+                        <path d="M250 20 L450 135 V365 L250 480 L50 365 V135 Z" stroke="#363b4e" stroke-width="45" stroke-linejoin="round" fill="none"/>
+                        <!-- Inner Hexagon Center -->
+                        <path d="M250 220 L310 255 V325 L250 360 L190 325 V255 Z" fill="#1e8389"/>
+                        
+                        <!-- Hexagonal Particles Top-Right -->
+                        <polygon points="410,210 425,200 440,210 440,230 425,240 410,230" fill="#363b4e" />
+                        <polygon points="445,180 460,170 475,180 475,200 460,210 445,200" fill="#363b4e" />
+                        <polygon points="420,250 435,240 450,250 450,270 435,280 420,270" fill="#363b4e" />
+                        <polygon points="455,230 470,220 485,230 485,250 470,260 455,250" fill="#363b4e" />
+                        <polygon points="430,290 445,280 460,290 460,310 445,320 430,310" fill="#363b4e" />
+                        
+                        <!-- Hexagonal Particles Bottom-Left/Center -->
+                        <polygon points="210,480 225,470 240,480 240,500 225,510 210,500" fill="#363b4e" />
+                        <polygon points="245,450 260,440 275,450 275,470 260,480 245,470" fill="#363b4e" />
+                        <polygon points="280,480 295,470 310,480 310,500 295,510 280,500" fill="#363b4e" />
+                        <polygon points="230,520 245,510 260,520 260,540 245,550 230,540" fill="#363b4e" />
+                        <polygon points="265,510 280,500 295,510 295,530 280,540 265,530" fill="#363b4e" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 CARDS / PORTALS SECTION (ELEVATED & COMPACT) -->
+        <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+            
+            <!-- CARD 1: المعمل -->
+            <div onclick="navigateTo('https://muhannadsabah93-ctrl.github.io/ameer/')" 
+                 class="glass-card rounded-2xl p-5 sm:p-6 cursor-pointer flex flex-col justify-between group relative overflow-hidden border-t-4 border-t-brand-teal ripple">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-teal to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-brand-teal/20 text-brand-teal flex items-center justify-center text-2xl group-hover:bg-brand-teal group-hover:text-white transition-all duration-300 shadow-inner">
+                            <i class="fa-solid fa-industry"></i>
+                        </div>
+                        <span class="text-[11px] font-extrabold text-brand-teal bg-brand-teal/10 px-2.5 py-1 rounded-full border border-brand-teal/20">
+                            النافذة الأولى
+                        </span>
+                    </div>
+
+                    <h2 class="text-2xl font-black text-white mb-2 group-hover:text-teal-300 transition-colors">
+                        المعمل
+                    </h2>
+                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-6">
+                        اضغط هنا للفتح المباشر لنظام إدارة المعمل وأوامر الإنتاج والتشغيل.
+                    </p>
+                </div>
+
+                <div class="mt-auto">
+                    <button class="w-full py-2.5 px-4 bg-brand-teal hover:bg-brand-tealLight text-white font-bold text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-md group-hover:shadow-brand-teal/40">
+                        <span>الانتقال إلى نظام المعمل</span>
+                        <i class="fa-solid fa-arrow-left text-xs group-hover:-translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CARD 2: المواد -->
+            <div onclick="navigateTo('https://muhannadsabah93-ctrl.github.io/Alqalab/')" 
+                 class="glass-card rounded-2xl p-5 sm:p-6 cursor-pointer flex flex-col justify-between group relative overflow-hidden border-t-4 border-t-brand-gold ripple">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-brand-gold/20 text-brand-gold flex items-center justify-center text-2xl group-hover:bg-brand-gold group-hover:text-brand-darker transition-all duration-300 shadow-inner">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                        </div>
+                        <span class="text-[11px] font-extrabold text-brand-gold bg-brand-gold/10 px-2.5 py-1 rounded-full border border-brand-gold/20">
+                            النافذة الثانية
+                        </span>
+                    </div>
+
+                    <h2 class="text-2xl font-black text-white mb-2 group-hover:text-brand-gold transition-colors">
+                        المواد
+                    </h2>
+                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-6">
+                        اضغط هنا للفتح المباشر لنظام إدارة المواد الأولية والمخزون وحساب القوالب.
+                    </p>
+                </div>
+
+                <div class="mt-auto">
+                    <button class="w-full py-2.5 px-4 bg-brand-gold hover:bg-brand-goldHover text-brand-darker font-bold text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-md group-hover:shadow-brand-gold/30">
+                        <span>الانتقال إلى نظام المواد</span>
+                        <i class="fa-solid fa-arrow-left text-xs group-hover:-translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CARD 3: المختبر -->
+            <div onclick="navigateTo('https://muhannadsabah93-ctrl.github.io/muhannad/')" 
+                 class="glass-card rounded-2xl p-5 sm:p-6 cursor-pointer flex flex-col justify-between group relative overflow-hidden border-t-4 border-t-emerald-500 ripple">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-inner">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <span class="text-[11px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                            النافذة الثالثة
+                        </span>
+                    </div>
+
+                    <h2 class="text-2xl font-black text-white mb-2 group-hover:text-emerald-300 transition-colors">
+                        المختبر
+                    </h2>
+                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-6">
+                        اضغط هنا للفتح المباشر لنظام الفحوصات المخبرية وتقارير جودة القوالب.
+                    </p>
+                </div>
+
+                <div class="mt-auto">
+                    <button class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-md group-hover:shadow-emerald-500/30">
+                        <span>الانتقال إلى نظام المختبر</span>
+                        <i class="fa-solid fa-arrow-left text-xs group-hover:-translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER SECTION -->
+    <footer class="w-full bg-brand-darker/90 border-t border-gray-800 py-4 text-center text-xs sm:text-sm text-gray-400 relative z-20">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p class="font-medium text-gray-300">
+                جميع الحقوق محفوظة &copy; نظام معامل القالب
+            </p>
+            <p class="text-brand-gold font-bold flex items-center gap-2">
+                <i class="fa-solid fa-code"></i>
+                تصميم وتطوير: المصمم مهند صباح | 07860001600
+            </p>
+        </div>
+    </footer>
+
+    <!-- NAVIGATION SCRIPT -->
+    <script>
+        /**
+         * Direct navigation handler that opens the target URL immediately in the current browser window.
+         * @param {string} url - The destination URL for the system.
+         */
+        function navigateTo(url) {
+            if (url) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</body>
+</html>
+```
+
+### أبرز التعديلات في هذه النسخة:
+1. **تصغير الشعار (Logo):** تم تقليص أبعاد إطار وسهم الشعار الهندسي بنسبة تفوق 50% مع الحفاظ على دقته وجمال ألوانه وتأثير الوهج.
+2. **رفع النوافذ والكروت للأعلى:** أصبحت النوافذ الثلاث قريبة جداً من الشعار بحيث تظهر جميع الأجزاء الرئيسية مباشرة عند فتح الصفحة بدون الحاجة للنزول بالمؤشر.
+3. **روابط النوافذ المباشرة:** تعمل جميع النوافذ مع وظيفة التحويل المباشر للروابط الخاصة بها فور الضغط عليها.
+4. **شريط الأخبار ورقم الهاتف:** التزكير والتحريك الإخباري السلس بجميع المعلومات والمُصمم **مهند صباح 07860001600**.
