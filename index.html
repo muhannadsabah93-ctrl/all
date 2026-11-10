@@ -3,393 +3,1535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام معامل القالب</title>
-    <!-- Tailwind CSS CDN -->
+    <title>معامل القالب للكونكريت - نظام إدارة الآليات الشامل</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Cairo & Tajawal -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900;1000&family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa', 100: '#ccfbf1', 500: '#0d9488',
+                            600: '#0d7490', 700: '#0f766e', 800: '#115e59',
+                            900: '#134e4a', 950: '#042f2e',
+                        }
+                    },
                     fontFamily: {
                         cairo: ['Cairo', 'sans-serif'],
                         tajawal: ['Tajawal', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            dark: '#363b4e',
-                            darker: '#222634',
-                            bgDark: '#1a1d24',
-                            teal: '#1e8389',
-                            tealLight: '#26a3aa',
-                            tealDark: '#155d62',
-                            gold: '#d4af37',
-                            goldHover: '#b8982a',
-                        }
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float-small': 'floatSmall 3s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        floatSmall: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-4px)' },
-                        }
                     }
                 }
             }
         }
     </script>
     <style>
-        body {
-            font-family: 'Cairo', 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #1a1d24 0%, #252a36 50%, #1a1d24 100%);
-            min-height: 100vh;
-            color: #f1f5f9;
-        }
-
-        /* Smooth marquee animation */
-        @keyframes tickerMove {
-            0% {
-                transform: translateX(-100%);
-            }
-            100% {
-                transform: translateX(100%);
-            }
-        }
-
-        .ticker-container {
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            background: rgba(30, 131, 137, 0.15);
-            border-y: 1px solid rgba(212, 175, 55, 0.25);
-            backdrop-filter: blur(8px);
-        }
-
-        .ticker-text {
-            display: inline-block;
-            padding-right: 100%;
-            animation: tickerMove 20s linear infinite;
-        }
-
-        .ticker-container:hover .ticker-text {
-            animation-play-state: paused;
-        }
-
-        /* Compact Glassmorphic Card Styling */
-        .glass-card {
-            background: rgba(54, 59, 78, 0.45);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            background: rgba(54, 59, 78, 0.75);
-            border-color: rgba(30, 131, 137, 0.5);
-            box-shadow: 0 20px 40px rgba(30, 131, 137, 0.25), 0 0 15px rgba(212, 175, 55, 0.15);
-        }
-
-        /* Ambient Glow Effect */
-        .bg-glow-teal {
-            background: radial-gradient(circle, rgba(30,131,137,0.18) 0%, rgba(0,0,0,0) 70%);
-        }
+        body { font-family: 'Tajawal', 'Cairo', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass-card { background: #1e293b; border: 2px solid #334155; }
         
-        .bg-glow-gold {
-            background: radial-gradient(circle, rgba(212,175,55,0.12) 0%, rgba(0,0,0,0) 70%);
-        }
+        #printable-report { display: none; }
 
-        /* Ripple Animation */
-        .ripple {
-            position: relative;
-            overflow: hidden;
-        }
+        @media print {
+            body * { visibility: hidden; }
+            
+            body.print-receipt-mode #receipt-print-area, body.print-receipt-mode #receipt-print-area * { visibility: visible; }
+            body.print-receipt-mode #receipt-print-area {
+                display: block !important; position: absolute; left: 0; top: 0; width: 58mm;
+                padding: 2mm; font-family: 'Courier New', monospace; font-size: 11px; color: #000; background: #fff;
+            }
 
-        .ripple::after {
-            content: "";
-            display: block;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
-            background-repeat: no-repeat;
-            background-position: 50%;
-            transform: scale(10, 10);
-            opacity: 0;
-            transition: transform .5s, opacity 1s;
-        }
-
-        .ripple:active::after {
-            transform: scale(0, 0);
-            opacity: .3;
-            transition: 0s;
+            body.print-report-mode #printable-report, body.print-report-mode #printable-report * { visibility: visible; }
+            body.print-report-mode #printable-report {
+                display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 15mm;
+                direction: rtl; background-color: #ffffff !important; color: #000000 !important; font-family: 'Tajawal', sans-serif;
+            }
+            body.print-report-mode table { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: #ffffff !important; }
+            body.print-report-mode th { background-color: #e2e8f0 !important; color: #000000 !important; font-weight: bold; }
+            body.print-report-mode th, body.print-report-mode td { border: 2px solid #000000 !important; padding: 8px; color: #000000 !important; text-align: center; font-size: 12px; }
         }
     </style>
 </head>
-<body class="flex flex-col justify-between relative overflow-x-hidden select-none min-h-screen">
+<body class="min-h-screen flex flex-col antialiased font-bold">
 
-    <!-- Ambient Glow Background Effects -->
-    <div class="absolute top-0 right-10 w-80 h-80 bg-glow-teal pointer-events-none rounded-full"></div>
-    <div class="absolute bottom-0 left-10 w-80 h-80 bg-glow-gold pointer-events-none rounded-full"></div>
-
-    <!-- MAIN HEADER SECTION -->
-    <header class="w-full relative z-20">
-        <!-- Top Bar with Title -->
-        <div class="bg-brand-darker/80 backdrop-blur-md py-4 px-4 border-b border-gray-800 text-center shadow-lg">
-            <div class="max-w-7xl mx-auto flex flex-col items-center justify-center">
-                <div class="flex items-center gap-3">
-                    <span class="w-2.5 h-2.5 rounded-full bg-brand-gold animate-ping"></span>
-                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white drop-shadow-md">
-                        نظام معامل القالب
-                    </h1>
-                    <span class="w-2.5 h-2.5 rounded-full bg-brand-teal animate-ping"></span>
+    <!-- Header Navigation -->
+    <header class="bg-slate-950 border-b border-slate-800 sticky top-0 z-30 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" onclick="switchView('home')">
+                <div class="bg-white p-1.5 rounded-2xl shadow-md border border-slate-700 flex items-center justify-center shrink-0 w-12 h-12">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        <path d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" fill="none" stroke="#2c323d" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+                        <polygon points="50,35 65,43.5 65,60.5 50,69 35,60.5 35,43.5" fill="#0d9488" />
+                    </svg>
                 </div>
-                <p class="text-xs sm:text-sm text-gray-400 mt-1 font-medium tracking-wide">
-                    البوابة المركزية الموحدة للانتقال المباشر للأنظمة الإدارية والفنية
-                </p>
+                <div>
+                    <h1 class="font-black text-lg font-cairo text-white tracking-wide">معامل القالب للكونكريت</h1>
+                    <p class="text-xs text-teal-400 font-extrabold">نظام متابعة وسجلات الآليات الموحد</p>
+                </div>
             </div>
-        </div>
 
-        <!-- MOVING TICKER (MARQUEE) -->
-        <div class="ticker-container py-2">
-            <div class="ticker-text font-bold text-xs sm:text-sm flex items-center gap-8">
-                <span class="text-brand-gold flex items-center gap-2">
-                    <i class="fa-solid fa-crown text-xs"></i>
-                    المصمم مهند صباح 07860001600
-                </span>
-                <span class="text-gray-500">•</span>
-                <span class="text-teal-300">
-                    أهلاً بكم في المنصة المركزية الموحدة لنظام معامل القالب
-                </span>
-                <span class="text-gray-500">•</span>
-                <span class="text-brand-gold flex items-center gap-2">
-                    <i class="fa-solid fa-phone text-xs"></i>
-                    للتواصل والدعم الفني: المصمم مهند صباح 07860001600
-                </span>
-                <span class="text-gray-500">•</span>
-                <span class="text-gray-300">
-                    اضغط على أي نافذة للانتقال المباشر إلى النظام المطلوب
-                </span>
+            <div class="flex items-center gap-2">
+                <button id="logoutBtn" onclick="logoutAdmin()" class="hidden bg-rose-900 hover:bg-rose-800 text-white font-black px-4 py-2 rounded-xl text-xs transition flex items-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>خروج</span>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- CENTER CONTENT AREA -->
-    <main class="flex-grow container mx-auto px-4 py-4 sm:py-6 flex flex-col items-center justify-center relative z-10 my-auto">
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
 
-        <!-- COMPACT / RESIZED LOGO -->
-        <div class="mb-5 sm:mb-6 text-center animate-float-small">
-            <div class="relative inline-block group">
-                <!-- Subtle Glowing Aura -->
-                <div class="absolute -inset-1.5 bg-gradient-to-r from-brand-teal via-brand-gold to-brand-teal rounded-2xl blur-md opacity-40 group-hover:opacity-70 transition duration-300"></div>
-                
-                <!-- Logo Box (Small & Compact) -->
-                <div class="relative bg-brand-darker/95 p-3.5 sm:p-4 rounded-2xl border border-gray-700/80 shadow-xl flex items-center justify-center">
-                    <svg class="w-16 h-20 sm:w-20 sm:h-24" viewBox="0 0 500 580" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Outer Hexagon Frame -->
-                        <path d="M250 20 L450 135 V365 L250 480 L50 365 V135 Z" stroke="#363b4e" stroke-width="45" stroke-linejoin="round" fill="none"/>
-                        <!-- Inner Hexagon Center -->
-                        <path d="M250 220 L310 255 V325 L250 360 L190 325 V255 Z" fill="#1e8389"/>
-                        
-                        <!-- Hexagonal Particles Top-Right -->
-                        <polygon points="410,210 425,200 440,210 440,230 425,240 410,230" fill="#363b4e" />
-                        <polygon points="445,180 460,170 475,180 475,200 460,210 445,200" fill="#363b4e" />
-                        <polygon points="420,250 435,240 450,250 450,270 435,280 420,270" fill="#363b4e" />
-                        <polygon points="455,230 470,220 485,230 485,250 470,260 455,250" fill="#363b4e" />
-                        <polygon points="430,290 445,280 460,290 460,310 445,320 430,310" fill="#363b4e" />
-                        
-                        <!-- Hexagonal Particles Bottom-Left/Center -->
-                        <polygon points="210,480 225,470 240,480 240,500 225,510 210,500" fill="#363b4e" />
-                        <polygon points="245,450 260,440 275,450 275,470 260,480 245,470" fill="#363b4e" />
-                        <polygon points="280,480 295,470 310,480 310,500 295,510 280,500" fill="#363b4e" />
-                        <polygon points="230,520 245,510 260,520 260,540 245,550 230,540" fill="#363b4e" />
-                        <polygon points="265,510 280,500 295,510 295,530 280,540 265,530" fill="#363b4e" />
-                    </svg>
-                </div>
+        <!-- VIEW 1: HOME PORTAL -->
+        <div id="view-home" class="min-h-[75vh] flex flex-col justify-center items-center py-10 space-y-8">
+            <div class="text-center space-y-3">
+                <h2 class="text-3xl sm:text-4xl font-black font-cairo text-white tracking-wide">معامل القالب للكونكريت</h2>
+                <p class="text-slate-400 text-sm font-bold">يرجى اختيار نظام تشغيل الآليات للمتابعة وإدخال السجلات</p>
+            </div>
+
+            <div class="w-full max-w-md flex flex-col gap-6">
+                <button onclick="selectSystem('hours')" class="w-full py-6 px-8 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 hover:to-blue-600 text-white font-black text-xl shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-between border border-sky-400/30">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-stopwatch text-3xl"></i>
+                        <span>الآليات التي تعمل بنظام الساعات</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-left text-lg opacity-70"></i>
+                </button>
+
+                <button onclick="selectSystem('km')" class="w-full py-6 px-8 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-500 hover:to-emerald-600 text-white font-black text-xl shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-between border border-teal-400/30">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-gauge-high text-3xl"></i>
+                        <span>الآليات التي تعمل بنظام الكيلومتر</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-left text-lg opacity-70"></i>
+                </button>
             </div>
         </div>
 
-        <!-- CARDS / PORTALS SECTION (4 CARDS) -->
-        <div class="w-full max-w-6xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-            
-            <!-- CARD 1: المعمل -->
-            <div onclick="navigateTo('https://muhannadsabah93-ctrl.github.io/ameer/')" 
-                 class="glass-card rounded-2xl p-5 sm:p-6 cursor-pointer flex flex-col justify-between group relative overflow-hidden border-t-4 border-t-brand-teal ripple">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-teal to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-brand-teal/20 text-brand-teal flex items-center justify-center text-2xl group-hover:bg-brand-teal group-hover:text-white transition-all duration-300 shadow-inner">
-                            <i class="fa-solid fa-industry"></i>
-                        </div>
-                        <span class="text-[11px] font-extrabold text-brand-teal bg-brand-teal/10 px-2.5 py-1 rounded-full border border-brand-teal/20">
-                            النافذة الأولى
-                        </span>
-                    </div>
+        <!-- VIEW 2: DRIVER ENTRY -->
+        <div id="view-driver" class="hidden max-w-xl mx-auto space-y-6">
+            <div class="flex justify-between items-center">
+                <button onclick="switchView('home')" class="text-xs font-black text-slate-400 hover:text-white flex items-center gap-2 bg-slate-800 px-4 py-2 rounded-xl border border-slate-700">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span>الرجوع للرئيسية</span>
+                </button>
+                <button onclick="openAdminAuthModal()" class="text-xs font-black text-amber-400 hover:text-amber-300 flex items-center gap-1.5 bg-slate-900 px-3 py-2 rounded-xl border border-amber-500/30">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>تسجيل الدخول للنظام</span>
+                </button>
+            </div>
 
-                    <h2 class="text-2xl font-black text-white mb-2 group-hover:text-teal-300 transition-colors">
-                        المعمل
-                    </h2>
-                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-6">
-                        اضغط هنا للفتح المباشر لنظام إدارة المعمل وأوامر الإنتاج والتشغيل.
-                    </p>
+            <div class="glass-card rounded-3xl p-6 shadow-2xl space-y-5">
+                <div class="text-center border-b border-slate-700 pb-4">
+                    <h2 id="driverSystemTitle" class="text-2xl font-black font-cairo text-white">--</h2>
+                    <p class="text-xs text-sky-400 mt-1">تسجيل وفحص حالة الآلية</p>
                 </div>
 
-                <div class="mt-auto">
-                    <button class="w-full py-2.5 px-4 bg-brand-teal hover:bg-brand-tealLight text-white font-bold text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-md group-hover:shadow-brand-teal/40">
-                        <span>الانتقال إلى نظام المعمل</span>
-                        <i class="fa-solid fa-arrow-left text-xs group-hover:-translate-x-1 transition-transform"></i>
-                    </button>
+                <div>
+                    <label class="block text-xs font-black text-slate-300 mb-2">اختر رمز الآلية واسم السائق:</label>
+                    <select id="driverVehicleSelect" onchange="onDriverVehicleChange()" class="w-full p-3.5 text-sm font-black rounded-xl bg-slate-900 border-2 border-slate-700 text-white focus:border-sky-500 outline-none">
+                        <option value="">-- اختر الآلية / السائق --</option>
+                    </select>
+
+                    <div id="remainingBadgeWrapper" class="hidden mt-3 p-3 rounded-xl border bg-slate-900/80 flex items-center justify-center">
+                        <span id="remainingBadgeValue" class="text-base font-black font-mono">--</span>
+                    </div>
+                </div>
+
+                <!-- Vehicle Info Banner -->
+                <div id="driverVehicleInfoBox" class="hidden bg-slate-900/90 p-4 rounded-2xl border border-slate-700 text-xs space-y-2.5">
+                    <div class="flex justify-between border-b border-slate-800 pb-1.5"><span class="text-slate-400">اسم السائق:</span><span id="dInfoDriver" class="text-white font-black text-sm">-</span></div>
+                    <div id="dInfoOperatorRow" class="flex justify-between border-b border-slate-800 pb-1.5 hidden"><span class="text-slate-400">اسم المشغل:</span><span id="dInfoOperator" class="text-white font-black text-sm">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400" id="dInfoTotalLabel">العداد السابق:</span><span id="dInfoTotalHours" class="text-amber-400 font-black text-base">-</span></div>
+                </div>
+
+                <!-- Hours Specific Inputs -->
+                <div id="hoursSpecificInputs" class="space-y-4 hidden">
+                    <div id="hoursDateInputWrapper">
+                        <label class="block text-xs font-black text-teal-400 mb-1"><i class="fa-regular fa-calendar-days ml-1"></i> تاريخ الصب:</label>
+                        <input type="date" id="driverWorkDateInput" class="w-full p-3 text-sm rounded-xl bg-slate-900 border border-slate-700 text-white outline-none font-bold">
+                    </div>
+
+                    <div id="hoursQtyInputWrapper" class="hidden">
+                        <label class="block text-xs font-black text-sky-300 mb-1"><i class="fa-solid fa-cube ml-1"></i> كمية الكونكريت (m³):</label>
+                        <input type="number" id="driverQtyInput" placeholder="أدخل الكمية بالمتر المكعب" class="w-full p-3 text-sm rounded-xl bg-slate-900 border border-slate-700 text-white outline-none">
+                    </div>
+
+                    <div id="hoursSiteInputWrapper" class="hidden">
+                        <label class="block text-xs font-black text-slate-300 mb-1">اسم الموقع:</label>
+                        <input type="text" id="driverSiteInput" placeholder="أدخل اسم الموقع" class="w-full p-3 text-sm rounded-xl bg-slate-900 border border-slate-700 text-white outline-none">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
+                        <div>
+                            <label class="block text-xs font-black text-sky-400 mb-1.5"><i class="fa-regular fa-clock ml-1"></i> من الساعة (وقت الدخول):</label>
+                            <div class="flex gap-1">
+                                <select id="driverTimeFromHour" class="w-1/3 p-2 text-xs font-bold rounded-lg bg-slate-900 border border-slate-700 text-white outline-none">
+                                    <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option>
+                                    <option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08" selected>08</option>
+                                    <option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                </select>
+                                <select id="driverTimeFromMin" class="w-1/3 p-2 text-xs font-bold rounded-lg bg-slate-900 border border-slate-700 text-white outline-none">
+                                    <option value="00">00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
+                                </select>
+                                <select id="driverTimeFromPeriod" class="w-1/3 p-2 text-xs font-bold rounded-lg bg-slate-900 border border-slate-700 text-teal-400 outline-none">
+                                    <option value="صباحاً" selected>صباحاً</option>
+                                    <option value="مساءً">مساءً</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-black text-amber-400 mb-1.5"><i class="fa-regular fa-clock ml-1"></i> إلى الساعة (وقت الخروج):</label>
+                            <div class="flex gap-1">
+                                <select id="driverTimeToHour" class="w-1/3 p-2 text-xs font-bold rounded-lg bg-slate-900 border border-slate-700 text-white outline-none">
+                                    <option value="01">01</option><option value="02" selected>02</option><option value="03">03</option><option value="04">04</option>
+                                    <option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option>
+                                    <option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                </select>
+                                <select id="driverTimeToMin" class="w-1/3 p-2 text-xs font-bold rounded-lg bg-slate-900 border border-slate-700 text-white outline-none">
+                                    <option value="00">00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
+                                </select>
+                                <select id="driverTimeToPeriod" class="w-1/3 p-2 text-xs font-bold rounded-lg bg-slate-900 border border-slate-700 text-amber-400 outline-none">
+                                    <option value="صباحاً">صباحاً</option>
+                                    <option value="مساءً" selected>مساءً</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KM Specific Inputs -->
+                <div id="kmInputWrapper">
+                    <label id="lblCurrentInput" class="block text-xs font-black text-slate-300 mb-1">أدخل العداد الحالي للسيارة (كم):</label>
+                    <input type="number" id="driverCurrentValInput" oninput="calculateDriverStatus()" placeholder="أدخل العداد الحالي الموجود في السيارة" class="w-full p-3.5 text-lg font-black rounded-xl bg-slate-900 border-2 border-slate-700 text-white focus:border-sky-500 outline-none">
+                </div>
+
+                <div id="driverStatusCard" class="hidden p-4 rounded-2xl text-center space-y-1 border border-slate-700">
+                    <span id="driverStatusBadge" class="inline-block px-3 py-1 rounded-full text-xs font-black mb-1">-</span>
+                    <h3 id="driverStatusTitle" class="text-xl font-black">--</h3>
+                    <p id="driverStatusSub" class="text-xs text-slate-400"></p>
+                </div>
+
+                <button id="driverSubmitBtn" onclick="submitDriverCheck()" class="w-full py-4 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-sm font-black transition cursor-pointer shadow-lg hidden">
+                    إرسال السجل
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW 3: ADMIN / MANAGEMENT DASHBOARD -->
+        <div id="view-admin" class="hidden space-y-6">
+            <div class="flex items-center justify-between bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                <div class="flex items-center gap-3">
+                    <span id="roleBadge" class="px-3 py-1 bg-slate-500/20 text-slate-300 border border-slate-500/30 rounded-lg text-xs font-black">النظام</span>
+                    <h2 id="adminDashboardTitle" class="text-lg font-black text-white">إدارة نظام الآليات</h2>
+                </div>
+                <button onclick="switchView('home')" class="text-xs font-black bg-slate-800 text-slate-300 hover:text-white px-3 py-2 rounded-xl border border-slate-700">العودة للرئيسية</button>
+            </div>
+
+            <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-3">
+                <button onclick="switchAdminTab('vehicles')" id="atab-vehicles" class="px-4 py-2 rounded-xl text-xs font-black bg-sky-600 text-white shadow-md">إدارة الآليات المسجلة</button>
+                <button onclick="switchAdminTab('service')" id="serviceTabBtnLabel" class="px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-300 hover:bg-slate-700">اعتماد الصيانة وتصفير العداد</button>
+                <button onclick="switchAdminTab('records')" id="atab-records" class="px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-300 hover:bg-slate-700">سجل القراءات والتقارير</button>
+            </div>
+
+            <!-- TAB: VEHICLES MANAGEMENT -->
+            <div id="atab-content-vehicles" class="space-y-4">
+                <div id="vehicleFormContainer" class="glass-card rounded-2xl p-5 border border-slate-800">
+                    <h3 id="vFormTitle" class="text-sm font-black text-white border-b border-slate-700 pb-2 mb-4">إضافة آلية جديدة للقاعدة</h3>
+                    <form onsubmit="saveVehicleForm(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <input type="hidden" id="vOriginalCode">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">رمز الآلية (فريد)</label>
+                            <input type="text" id="vCode" required placeholder="مثال: CAT-101" class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">اسم / نوع الآلية</label>
+                            <input type="text" id="vName" required placeholder="مولدة 500 KVA / مضخة كونكريت" class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                        </div>
+                        
+                        <div id="vSubCategoryWrapper" class="hidden">
+                            <label class="block text-xs text-slate-400 mb-1">تصنيف الآلية (مولدة أم مضخة)</label>
+                            <select id="vSubCategory" onchange="onAdminSubCategoryChange()" class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                                <option value="generators">مولدة</option>
+                                <option value="pumps">مضخة</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">اسم السائق</label>
+                            <input type="text" id="vDriver" required placeholder="اسم السائق" class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                        </div>
+                        <div id="vOperatorWrapper">
+                            <label class="block text-xs text-slate-400 mb-1">اسم المشغل</label>
+                            <input type="text" id="vOperator" placeholder="اسم المشغل" class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                        </div>
+                        <div>
+                            <label id="lblVLastOdo" class="block text-xs text-slate-400 mb-1">العداد السابق</label>
+                            <input type="number" id="vLastOdo" required placeholder="0" class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                        </div>
+                        <div>
+                            <label id="lblVInterval" class="block text-xs text-slate-400 mb-1">حد الكيلومترات للاستحقاق (كم)</label>
+                            <input type="number" id="vInterval" required placeholder="5000" class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-4 flex justify-end gap-2 pt-2">
+                            <button type="button" onclick="resetVehicleForm()" class="px-4 py-2 bg-slate-700 text-slate-300 rounded-xl text-xs font-black">إلغاء</button>
+                            <button type="submit" class="px-6 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-black">حفظ الآلية</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="glass-card rounded-2xl p-4 border border-slate-800 overflow-x-auto">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-900 text-slate-300 font-black border-b border-slate-700">
+                            <tr>
+                                <th class="p-3">الرمز</th>
+                                <th class="p-3">اسم الآلية</th>
+                                <th id="thAdminDriverHeader" class="p-3">السائق / المشغل</th>
+                                <th id="thAdminOdoHeader" class="p-3">العداد السابق</th>
+                                <th id="thAdminIntervalHeader" class="p-3">حد الاستحقاق</th>
+                                <th id="thActionsHeader" class="p-3 text-center">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vehiclesAdminTableBody" class="divide-y divide-slate-800 font-bold">
+                            <!-- Dynamic -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- CARD 2: المواد -->
-            <div onclick="navigateTo('https://muhannadsabah93-ctrl.github.io/Alqalab/')" 
-                 class="glass-card rounded-2xl p-5 sm:p-6 cursor-pointer flex flex-col justify-between group relative overflow-hidden border-t-4 border-t-brand-gold ripple">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-brand-gold/20 text-brand-gold flex items-center justify-center text-2xl group-hover:bg-brand-gold group-hover:text-brand-darker transition-all duration-300 shadow-inner">
-                            <i class="fa-solid fa-boxes-stacked"></i>
-                        </div>
-                        <span class="text-[11px] font-extrabold text-brand-gold bg-brand-gold/10 px-2.5 py-1 rounded-full border border-brand-gold/20">
-                            النافذة الثانية
-                        </span>
+            <!-- TAB: SERVICE & RESET -->
+            <div id="atab-content-service" class="hidden space-y-4">
+                <div class="max-w-xl mx-auto glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 id="serviceFormTitleHeader" class="text-sm font-black text-white border-b border-slate-700 pb-2">اعتماد الصيانة وتصفير العداد</h3>
+                    
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">اختر الآلية:</label>
+                        <select id="serviceVehicleSelect" onchange="onServiceVehicleSelect()" class="w-full p-3 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                            <option value="">-- اختر الآلية --</option>
+                        </select>
                     </div>
 
-                    <h2 class="text-2xl font-black text-white mb-2 group-hover:text-brand-gold transition-colors">
-                        المواد
-                    </h2>
-                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-6">
-                        اضغط هنا للفتح المباشر لنظام إدارة المواد الأولية والمخزون وحساب القوالب.
-                    </p>
+                    <div>
+                        <label class="block text-xs text-teal-400 mb-1"><i class="fa-regular fa-calendar-days ml-1"></i> تاريخ التصفير والصيانة:</label>
+                        <input type="date" id="svcDateInput" class="w-full p-3 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none font-bold">
+                    </div>
+
+                    <div id="serviceSummaryBox" class="hidden bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs space-y-1">
+                        <p class="text-slate-300">اسم الآلية: <span id="svcName" class="text-white font-black"></span></p>
+                        <p class="text-slate-300">العداد السابق الحالي: <span id="svcPrevHours" class="text-amber-400 font-black"></span></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">نوع الزيت المستخدم:</label>
+                        <input type="text" id="svcOilType" placeholder="Super Diesel 15W40" class="w-full p-3 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-sky-300 mb-1"><i class="fa-solid fa-oil-can ml-1"></i> كمية الزيت (لتر):</label>
+                        <input type="number" id="svcOilQty" placeholder="أدخل كمية الزيت المستخدمة باللتر" class="w-full p-3 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">فلتر الزيت:</label>
+                        <select id="svcFilter" class="w-full p-3 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                            <option value="مع فلتر">مع فلتر</option>
+                            <option value="بدون فلتر">بدون فلتر</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label id="lblSvcNewOdo" class="block text-xs text-slate-400 mb-1">العداد الجديد (كم):</label>
+                        <input type="number" id="svcNewOdo" placeholder="أدخل القراءة الجديدة للعداد" class="w-full p-3 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none">
+                    </div>
+
+                    <button id="serviceSubmitBtn" onclick="submitServiceReset()" class="w-full py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-black shadow-lg">
+                        اعتماد الصيانة وطباعة الوصل
+                    </button>
                 </div>
 
-                <div class="mt-auto">
-                    <button class="w-full py-2.5 px-4 bg-brand-gold hover:bg-brand-goldHover text-brand-darker font-bold text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-md group-hover:shadow-brand-gold/30">
-                        <span>الانتقال إلى نظام المواد</span>
-                        <i class="fa-solid fa-arrow-left text-xs group-hover:-translate-x-1 transition-transform"></i>
-                    </button>
+                <div class="glass-card p-4 rounded-2xl border border-slate-800 overflow-x-auto space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                        <h4 class="text-sm font-black text-white">سجل إيصالات الصيانة الصادرة</h4>
+                        <span class="text-xs text-slate-400">إجمالي الإيصالات: <strong id="serviceReceiptCount" class="text-teal-400 font-black">0</strong></span>
+                    </div>
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-900 text-slate-300 font-black border-b border-slate-700">
+                            <tr>
+                                <th class="p-3">ت</th>
+                                <th class="p-3">الآلية</th>
+                                <th class="p-3">السائق / المشغل</th>
+                                <th class="p-3">نوع الزيت والكمية والفلتر</th>
+                                <th class="p-3">العداد السابق المسجل</th>
+                                <th class="p-3">التاريخ والوقت</th>
+                                <th class="p-3 text-center">الإجراءات (طباعة / حذف)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="serviceReceiptsTableBody" class="divide-y divide-slate-800 font-bold">
+                            <!-- Dynamic -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- CARD 3: المختبر -->
-            <div onclick="navigateTo('https://muhannadsabah93-ctrl.github.io/muhannad/')" 
-                 class="glass-card rounded-2xl p-5 sm:p-6 cursor-pointer flex flex-col justify-between group relative overflow-hidden border-t-4 border-t-emerald-500 ripple">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-inner">
-                            <i class="fa-solid fa-flask"></i>
+            <!-- TAB: RECORDS & REPORTS -->
+            <div id="atab-content-records" class="hidden space-y-4">
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-sm font-black text-white border-b border-slate-700 pb-2">فلترة وتصفية السجلات والتقارير</h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">تصفية حسب الشهر:</label>
+                            <select id="recFilterMonth" onchange="filterRecordsLog()" class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none font-bold">
+                                <option value="">كافة الأشهر</option>
+                                <option value="01">يناير (1)</option><option value="02">فبراير (2)</option><option value="03">مارس (3)</option><option value="04">أبريل (4)</option><option value="05">مايو (5)</option><option value="06">يونيو (6)</option><option value="07">يوليو (7)</option><option value="08">أغسطس (8)</option><option value="09">سبتمبر (9)</option><option value="10">أكتوبر (10)</option><option value="11">نوفمبر (11)</option><option value="12">ديسمبر (12)</option>
+                            </select>
                         </div>
-                        <span class="text-[11px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                            النافذة الثالثة
-                        </span>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">تصفية حسب السنة:</label>
+                            <select id="recFilterYear" onchange="filterRecordsLog()" class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none font-bold">
+                                <option value="">كافة السنوات</option>
+                                <option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">تصفية حسب الآلية:</label>
+                            <select id="recFilterVehicle" onchange="filterRecordsLog()" class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white outline-none font-bold">
+                                <option value="">كافة الآليات</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <h2 class="text-2xl font-black text-white mb-2 group-hover:text-emerald-300 transition-colors">
-                        المختبر
-                    </h2>
-                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-6">
-                        اضغط هنا للفتح المباشر لنظام الفحوصات المخبرية وتقارير جودة القوالب.
-                    </p>
-                </div>
-
-                <div class="mt-auto">
-                    <button class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-md group-hover:shadow-emerald-500/30">
-                        <span>الانتقال إلى نظام المختبر</span>
-                        <i class="fa-solid fa-arrow-left text-xs group-hover:-translate-x-1 transition-transform"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- CARD 4: الآليات -->
-            <div class="glass-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between group relative overflow-hidden border-t-4 border-t-amber-500">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl group-hover:bg-amber-500 group-hover:text-white transition-all duration-300 shadow-inner">
-                            <i class="fa-solid fa-truck-monster"></i>
+                    <div class="flex flex-wrap justify-between items-center pt-2 gap-3">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <span class="text-xs text-slate-400">إجمالي النتائج: <strong id="recCountDisplay" class="text-sky-400 font-black">0</strong> سجل</span>
+                            <span id="recTotalHoursWrapper" class="text-xs text-slate-400 hidden">إجمالي ساعات العمل: <strong id="recTotalHoursDisplay" class="text-amber-400 font-black">0</strong> ساعة</span>
+                            <span id="recTotalQtyWrapper" class="text-xs text-slate-400 hidden border-r border-slate-700 pr-4">إجمالي الكونكريت المجهز: <strong id="recTotalQtyDisplay" class="text-teal-400 font-black">0</strong> m³</span>
                         </div>
-                        <span class="text-[11px] font-extrabold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
-                            النافذة الرابعة
-                        </span>
+                        <button onclick="printFilteredReportA4()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-print"></i>
+                            <span>طباعة التقرير المفلتر (A4 - من الأقدم للأحدث)</span>
+                        </button>
                     </div>
-
-                    <h2 class="text-2xl font-black text-white mb-2 group-hover:text-amber-300 transition-colors">
-                        الآليات
-                    </h2>
-                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-5">
-                        اختر النظام المطلوب لمتابعة وإدارة الآليات والمحروقات:
-                    </p>
                 </div>
 
-                <div class="mt-auto space-y-2.5">
-                    <button onclick="navigateTo('https://muhannadsabah93-ctrl.github.io/amaar/')" 
-                            class="w-full py-2.5 px-3 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs sm:text-sm rounded-xl transition flex items-center justify-between shadow-md group-hover:shadow-amber-500/30">
-                        <span class="flex items-center gap-2">
-                            <i class="fa-solid fa-oil-can"></i>
-                            <span>نظام الزيوت</span>
-                        </span>
-                        <i class="fa-solid fa-arrow-left text-xs"></i>
-                    </button>
-
-                    <button onclick="navigateTo('https://muhannadsabah93-ctrl.github.io/muhsain/')" 
-                            class="w-full py-2.5 px-3 bg-amber-500/20 hover:bg-amber-500 hover:text-white text-amber-300 font-bold text-xs sm:text-sm rounded-xl transition flex items-center justify-between border border-amber-500/30">
-                        <span class="flex items-center gap-2">
-                            <i class="fa-solid fa-gas-pump"></i>
-                            <span>نظام الكاز (الوقود)</span>
-                        </span>
-                        <i class="fa-solid fa-arrow-left text-xs"></i>
-                    </button>
+                <div class="glass-card p-4 rounded-2xl border border-slate-800 overflow-x-auto">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-900 text-slate-300 font-black border-b border-slate-700">
+                            <tr>
+                                <th class="p-3">ت</th>
+                                <th class="p-3">الآلية</th>
+                                <th id="thRecordsOperatorHeader" class="p-3">السائق / المشغل</th>
+                                <th id="thRecordsValHeader" class="p-3">قراءة العداد</th>
+                                <th id="thRecordsExtraHeader" class="p-3">كمية الكونكريت (m³)</th>
+                                <th id="thRecordsSiteHeader" class="p-3">الموقع / التفاصيل</th>
+                                <th class="p-3">التاريخ والوقت</th>
+                                <th id="thRecordsActionHeader" class="p-3 text-center">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsAdminTableBody" class="divide-y divide-slate-800 font-bold">
+                            <!-- Dynamic -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
         </div>
 
     </main>
 
-    <!-- FOOTER SECTION -->
-    <footer class="w-full bg-brand-darker/90 border-t border-gray-800 py-4 text-center text-xs sm:text-sm text-gray-400 relative z-20">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p class="font-medium text-gray-300">
-                جميع الحقوق محفوظة &copy; نظام معامل القالب
-            </p>
-            <p class="text-brand-gold font-bold flex items-center gap-2">
-                <i class="fa-solid fa-code"></i>
-                تصميم وتطوير: المصمم مهند صباح | 07860001600
-            </p>
+    <!-- AUTH MODAL -->
+    <div id="modalAdminAuth" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xs w-full p-6 text-center space-y-4 shadow-2xl">
+            <h3 class="text-white font-black text-base">تسجيل الدخول للنظام</h3>
+            <p class="text-xs text-slate-400">يرجى إدخال رمز الدخول المعتمد</p>
+            <input type="password" id="adminPinInput" placeholder="أدخل الرمز هنا" class="w-full p-3 text-center text-sm bg-slate-950 border border-slate-700 rounded-xl text-white outline-none font-mono">
+            <div class="flex gap-2">
+                <button onclick="closeAdminAuthModal()" class="w-1/2 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-black">إلغاء</button>
+                <button onclick="submitAdminAuth()" class="w-1/2 py-2 bg-sky-600 text-white rounded-xl text-xs font-black">دخول</button>
+            </div>
         </div>
-    </footer>
+    </div>
 
-    <!-- NAVIGATION SCRIPT -->
-    <script>
-        /**
-         * Direct navigation handler that opens the target URL immediately in the current browser window.
-         * @param {string} url - The destination URL for the system.
-         */
-        function navigateTo(url) {
-            if (url) {
-                window.location.href = url;
+    <!-- PRINT CONTAINERS -->
+    <div id="receipt-print-area"></div>
+
+    <div id="printable-report">
+        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+            <h1 style="margin: 0; font-size: 22px; font-weight: 900; color:#000;">معامل القالب للكونكريت الجاهز</h1>
+            <h3 id="printReportTitle" style="margin: 5px 0 0 0; font-size: 15px; font-weight: 800; color:#000;">تقرير سجلات النظام</h3>
+            <p id="reportFilterDetails" style="margin: 5px 0 0 0; font-size: 11px; color:#555;"></p>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ت</th>
+                    <th>رمز واسم الآلية</th>
+                    <th id="thPrintDriverHeader">السائق / المشغل</th>
+                    <th id="thPrintValHeader">القراءة المسجلة</th>
+                    <th id="thPrintExtraHeader">كمية الكونكريت (m³)</th>
+                    <th id="thPrintSiteHeader">الموقع / التفاصيل</th>
+                    <th>التاريخ</th>
+                </tr>
+            </thead>
+            <tbody id="print-a4-table-body"></tbody>
+        </table>
+    </div>
+
+    <!-- Firebase SDK & App Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBAxpYHnFMeby2qL-sFXwv5LbPzDLuHwxc",
+            authDomain: "amaar-18e0e.firebaseapp.com",
+            projectId: "amaar-18e0e",
+            storageBucket: "amaar-18e0e.firebasestorage.app",
+            messagingSenderId: "560277135358",
+            appId: "1:560277135358:web:91bbf1f3e336a0b984eaaf",
+            measurementId: "G-NCZ4W1KLPL"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let windowVehicles = [];
+        let windowRecords = [];
+        let windowServiceReceipts = [];
+        let filteredRecords = [];
+        let currentSystem = 'km'; 
+        let currentRole = '';
+
+        window.onload = function() {
+            initFirebaseRealtimeSync();
+            const svcDateEl = document.getElementById('svcDateInput');
+            if(svcDateEl) svcDateEl.value = new Date().toISOString().split('T')[0];
+        };
+
+        function initFirebaseRealtimeSync() {
+            onSnapshot(collection(db, "vehicles"), (snapshot) => {
+                windowVehicles = [];
+                snapshot.forEach((docSnap) => windowVehicles.push(docSnap.data()));
+                
+                windowVehicles.sort((a, b) => {
+                    const codeA = (a.code || "").toString().toLowerCase();
+                    const codeB = (b.code || "").toString().toLowerCase();
+                    return codeA.localeCompare(codeB, 'en', { numeric: true });
+                });
+
+                renderAllData();
+            });
+
+            onSnapshot(collection(db, "records"), (snapshot) => {
+                windowRecords = [];
+                snapshot.forEach((docSnap) => windowRecords.push(docSnap.data()));
+                windowRecords.sort((a, b) => new Date(a.timestamp || a.workDate) - new Date(b.timestamp || b.workDate));
+                renderAllData();
+            });
+
+            onSnapshot(collection(db, "serviceReceipts"), (snapshot) => {
+                windowServiceReceipts = [];
+                snapshot.forEach((docSnap) => windowServiceReceipts.push(docSnap.data()));
+                windowServiceReceipts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                renderServiceReceiptsTable();
+            });
+        }
+
+        function renderAllData() {
+            populateDriverSelect();
+            populateAdminVehiclesTable();
+            populateServiceSelect();
+            populateRecordsVehicleDropdown();
+            filterRecordsLog();
+            renderServiceReceiptsTable();
+        }
+
+        window.switchView = function(viewId) {
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-driver').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+        };
+
+        window.selectSystem = function(sysType) {
+            currentSystem = sysType;
+            const sysTitle = sysType === 'hours' ? 'الآليات التي تعمل بنظام الساعات' : 'الآليات التي تعمل بنظام الكيلومتر';
+            document.getElementById('driverSystemTitle').innerText = sysTitle;
+            document.getElementById('adminDashboardTitle').innerText = 'إدارة ' + sysTitle;
+            
+            const serviceTabBtnLabel = document.getElementById('serviceTabBtnLabel');
+            const serviceFormTitleHeader = document.getElementById('serviceFormTitleHeader');
+            const serviceSubmitBtn = document.getElementById('serviceSubmitBtn');
+            const driverSubmitBtn = document.getElementById('driverSubmitBtn');
+
+            if (sysType === 'hours') {
+                if (serviceTabBtnLabel) serviceTabBtnLabel.innerText = "وصل التصفير والصيانة";
+                if (serviceFormTitleHeader) serviceFormTitleHeader.innerText = "وصل التصفير والصيانة وتصفير العداد";
+                if (serviceSubmitBtn) serviceSubmitBtn.innerText = "إصدار وطباعة وصل التصفير (تصفير الرقم بالكامل)";
+                if (driverSubmitBtn) driverSubmitBtn.classList.remove('hidden');
+                document.getElementById('vSubCategoryWrapper').classList.remove('hidden');
+                onAdminSubCategoryChange();
+            } else {
+                if (serviceTabBtnLabel) serviceTabBtnLabel.innerText = "اعتماد الصيانة وتصفير العداد";
+                if (serviceFormTitleHeader) serviceFormTitleHeader.innerText = "اعتماد الصيانة وتصفير العداد (كيلومتر)";
+                if (serviceSubmitBtn) serviceSubmitBtn.innerText = "اعتماد الصيانة وطباعة الوصل";
+                if (driverSubmitBtn) driverSubmitBtn.classList.add('hidden');
+                document.getElementById('vSubCategoryWrapper').classList.add('hidden');
+                const vOperatorWrapper = document.getElementById('vOperatorWrapper');
+                if(vOperatorWrapper) vOperatorWrapper.classList.add('hidden');
+            }
+
+            const hoursInputs = document.getElementById('hoursSpecificInputs');
+            const kmInputWrapper = document.getElementById('kmInputWrapper');
+
+            if (sysType === 'hours') {
+                hoursInputs.classList.remove('hidden');
+                kmInputWrapper.classList.add('hidden');
+            } else {
+                hoursInputs.classList.add('hidden');
+                kmInputWrapper.classList.remove('hidden');
+                const dInfoOperatorRow = document.getElementById('dInfoOperatorRow');
+                if(dInfoOperatorRow) dInfoOperatorRow.classList.add('hidden');
+            }
+
+            updateAdminLabelsForSystem();
+            populateDriverSelect();
+            populateServiceSelect();
+            switchView('driver');
+        };
+
+        window.onAdminSubCategoryChange = function() {
+            const subCatVal = document.getElementById('vSubCategory')?.value;
+            const opWrapper = document.getElementById('vOperatorWrapper');
+            if (!opWrapper) return;
+
+            if (currentSystem === 'hours' && subCatVal === 'pumps') {
+                opWrapper.classList.remove('hidden');
+            } else {
+                opWrapper.classList.add('hidden');
+            }
+        };
+
+        function updateAdminLabelsForSystem() {
+            const isHours = currentSystem === 'hours';
+
+            const lblVLastOdo = document.getElementById('lblVLastOdo');
+            const lblVInterval = document.getElementById('lblVInterval');
+            const thAdminOdoHeader = document.getElementById('thAdminOdoHeader');
+            const thAdminIntervalHeader = document.getElementById('thAdminIntervalHeader');
+            const lblSvcNewOdo = document.getElementById('lblSvcNewOdo');
+            const dInfoTotalLabel = document.getElementById('dInfoTotalLabel');
+
+            if (lblVLastOdo) lblVLastOdo.innerText = "العداد السابق";
+            if (lblVInterval) lblVInterval.innerText = isHours ? "حد ساعات الاستحقاق للتنبيه (Interval)" : "حد الكيلومترات للاستحقاق (كم)";
+            if (thAdminOdoHeader) thAdminOdoHeader.innerText = "العداد السابق";
+            if (thAdminIntervalHeader) thAdminIntervalHeader.innerText = isHours ? "حد ساعات الصيانة" : "حد مسافة الصيانة";
+            if (lblSvcNewOdo) lblSvcNewOdo.innerText = isHours ? "ملاحظة التصفير الجديد:" : "العداد الجديد (كم):";
+            if (dInfoTotalLabel) dInfoTotalLabel.innerText = isHours ? "مجموع الساعات:" : "العداد السابق:";
+
+            const thRecordsValHeader = document.getElementById('thRecordsValHeader');
+            const thRecordsExtraHeader = document.getElementById('thRecordsExtraHeader');
+            const thRecordsSiteHeader = document.getElementById('thRecordsSiteHeader');
+            const thPrintValHeader = document.getElementById('thPrintValHeader');
+            const thPrintExtraHeader = document.getElementById('thPrintExtraHeader');
+            const thPrintSiteHeader = document.getElementById('thPrintSiteHeader');
+            const thAdminDriverHeader = document.getElementById('thAdminDriverHeader');
+            const thRecordsOperatorHeader = document.getElementById('thRecordsOperatorHeader');
+            const thPrintDriverHeader = document.getElementById('thPrintDriverHeader');
+
+            if (thAdminDriverHeader) thAdminDriverHeader.innerText = isHours ? "السائق / المشغل" : "اسم السائق";
+            if (thRecordsOperatorHeader) thRecordsOperatorHeader.innerText = isHours ? "السائق / المشغل" : "اسم السائق";
+            if (thPrintDriverHeader) thPrintDriverHeader.innerText = isHours ? "السائق / المشغل" : "اسم السائق";
+
+            if (thRecordsValHeader) thRecordsValHeader.innerText = isHours ? "عدد ساعات العمل" : "قراءة العداد (كم)";
+            if (thRecordsExtraHeader) {
+                if (isHours) {
+                    thRecordsExtraHeader.style.display = 'table-cell';
+                    thRecordsExtraHeader.innerText = "كمية الكونكريت (m³)";
+                } else {
+                    thRecordsExtraHeader.style.display = 'none';
+                }
+            }
+            if (thPrintValHeader) thPrintValHeader.innerText = isHours ? "عدد ساعات العمل" : "قراءة العداد (كم)";
+            if (thPrintExtraHeader) {
+                if (isHours) {
+                    thPrintExtraHeader.style.display = 'table-cell';
+                    thPrintExtraHeader.innerText = "كمية الكونكريت (m³)";
+                } else {
+                    thPrintExtraHeader.style.display = 'none';
+                }
+            }
+
+            if (thRecordsSiteHeader) thRecordsSiteHeader.innerText = isHours ? "الموقع / أوقات التشغيل" : "حالة الفحص";
+            if (thPrintSiteHeader) thPrintSiteHeader.innerText = isHours ? "الموقع / أوقات العمل" : "ملاحظات الفحص";
+        }
+
+        function populateDriverSelect() {
+            const select = document.getElementById('driverVehicleSelect');
+            if(!select) return;
+            
+            const previousSelectedValue = select.value;
+            select.innerHTML = '<option value="">-- اختر الآلية / السائق --</option>';
+            
+            const filtered = windowVehicles.filter(v => (v.systemType || 'km') === currentSystem);
+
+            filtered.forEach(v => {
+                const subCatText = (v.subCategory === 'generators') ? '[مولدة]' : ((v.subCategory === 'pumps') ? '[مضخة]' : '');
+                select.innerHTML += `<option value="${v.code}">${subCatText} رمز الآلية: ${v.code} - ${v.name} (${v.driver || 'غير محدد'})</option>`;
+            });
+
+            if (previousSelectedValue && select.querySelector(`option[value="${previousSelectedValue}"]`)) {
+                select.value = previousSelectedValue;
             }
         }
+
+        window.onDriverVehicleChange = function() {
+            const selectElement = document.getElementById('driverVehicleSelect');
+            const code = selectElement.value;
+            const infoBox = document.getElementById('driverVehicleInfoBox');
+            const currentValInput = document.getElementById('driverCurrentValInput');
+            const badgeWrapper = document.getElementById('remainingBadgeWrapper');
+
+            if(currentValInput) currentValInput.value = '';
+            
+            const statusCard = document.getElementById('driverStatusCard');
+            if(statusCard) statusCard.classList.add('hidden');
+
+            const siteWrapper = document.getElementById('hoursSiteInputWrapper');
+            const qtyWrapper = document.getElementById('hoursQtyInputWrapper');
+            const dateInputWrapper = document.getElementById('hoursDateInputWrapper');
+            const vOperatorWrapper = document.getElementById('vOperatorWrapper');
+            const dInfoOperatorRow = document.getElementById('dInfoOperatorRow');
+
+            if (!code) { 
+                if(infoBox) infoBox.classList.add('hidden'); 
+                if(badgeWrapper) badgeWrapper.classList.add('hidden');
+                if(siteWrapper) siteWrapper.classList.add('hidden');
+                if(qtyWrapper) qtyWrapper.classList.add('hidden');
+                if(dateInputWrapper) dateInputWrapper.classList.add('hidden');
+                return; 
+            }
+
+            const v = windowVehicles.find(item => item.code === code);
+            if (!v) return;
+
+            if (currentSystem === 'hours') {
+                if(dateInputWrapper) {
+                    dateInputWrapper.classList.remove('hidden');
+                    const workDateInput = document.getElementById('driverWorkDateInput');
+                    if(workDateInput && !workDateInput.value) {
+                        workDateInput.value = new Date().toISOString().split('T')[0];
+                    }
+                }
+
+                const isPump = (v.subCategory === 'pumps');
+                if (isPump) {
+                    if(qtyWrapper) qtyWrapper.classList.remove('hidden');
+                    if(siteWrapper) siteWrapper.classList.remove('hidden');
+                    if(vOperatorWrapper) vOperatorWrapper.classList.remove('hidden');
+                    if(dInfoOperatorRow) dInfoOperatorRow.classList.remove('hidden');
+                } else {
+                    if(qtyWrapper) qtyWrapper.classList.add('hidden');
+                    if(siteWrapper) siteWrapper.classList.add('hidden');
+                    if(vOperatorWrapper) vOperatorWrapper.classList.add('hidden');
+                    if(dInfoOperatorRow) dInfoOperatorRow.classList.add('hidden');
+                }
+            }
+
+            const unit = currentSystem === 'hours' ? 'ساعة' : 'كم';
+            
+            let accumulatedHours = 0;
+            const lastResetTime = v.lastServiceTimestamp ? Number(v.lastServiceTimestamp) : 0;
+            const previousStoredHours = Number(v.lastOilOdometer) || 0; 
+
+            if (currentSystem === 'hours') {
+                const vehicleRecords = windowRecords.filter(r => {
+                    const rTime = new Date(r.timestamp || r.workDate).getTime();
+                    return r.vehicleCode === code && (r.systemType || 'hours') === 'hours' && rTime > lastResetTime;
+                });
+                vehicleRecords.forEach(r => {
+                    accumulatedHours += Number(r.recordedVal) || 0;
+                });
+            }
+
+            const totalSumHours = previousStoredHours + accumulatedHours;
+
+            document.getElementById('dInfoDriver').innerText = v.driver || '-';
+            const dInfoOp = document.getElementById('dInfoOperator');
+            if(dInfoOp) dInfoOp.innerText = v.operator || '-';
+
+            document.getElementById('dInfoTotalHours').innerText = (currentSystem === 'hours' ? totalSumHours : previousStoredHours).toLocaleString() + ' ' + unit;
+            
+            if (currentSystem === 'hours') {
+                calculateHoursAlertStatus(v, totalSumHours);
+            }
+
+            if(infoBox) infoBox.classList.remove('hidden');
+        };
+
+        function calculateHoursAlertStatus(v, totalSumHours) {
+            const card = document.getElementById('driverStatusCard');
+            const badge = document.getElementById('driverStatusBadge');
+            const title = document.getElementById('driverStatusTitle');
+            const sub = document.getElementById('driverStatusSub');
+            const badgeWrapper = document.getElementById('remainingBadgeWrapper');
+            const badgeValue = document.getElementById('remainingBadgeValue');
+
+            const interval = Number(v.oilInterval) || 250; 
+            const remaining = interval - totalSumHours;
+
+            card.classList.remove('hidden');
+
+            if (badgeWrapper && badgeValue) {
+                if (remaining > 0) {
+                    badgeValue.innerText = `متبقي للوصول للحد: ${remaining.toLocaleString()} ساعة`;
+                    badgeValue.className = "text-base font-black font-mono text-emerald-400";
+                    badgeWrapper.className = "mt-3 p-3 rounded-xl border border-emerald-500/30 bg-emerald-950/40 flex items-center justify-center";
+                } else if (remaining === 0) {
+                    badgeValue.innerText = `⚠️ وصل العداد إلى حد الاستحقاق المطلوب!`;
+                    badgeValue.className = "text-base font-black font-mono text-amber-400";
+                    badgeWrapper.className = "mt-3 p-3 rounded-xl border border-amber-500/30 bg-amber-950/40 flex items-center justify-center";
+                } else {
+                    badgeValue.innerText = `🚨 تجاوز الحد المجدول بـ ${Math.abs(remaining).toLocaleString()} ساعة!`;
+                    badgeValue.className = "text-base font-black font-mono text-rose-400";
+                    badgeWrapper.className = "mt-3 p-3 rounded-xl border border-rose-500/30 bg-rose-950/40 flex items-center justify-center";
+                }
+                badgeWrapper.classList.remove('hidden');
+            }
+
+            if (remaining > 0) {
+                card.className = "p-4 rounded-2xl text-center space-y-1 bg-emerald-950/60 border border-emerald-700 text-emerald-200";
+                badge.className = "inline-block px-3 py-1 rounded-full text-xs font-black bg-emerald-800 text-emerald-100";
+                badge.innerText = "ضمن حدود التشغيل الطبيعية";
+                title.innerText = `مجموع الساعات: ${totalSumHours.toLocaleString()} ساعة`;
+                sub.innerText = `حد التنبيه المستهدف: ${interval.toLocaleString()} ساعة`;
+            } else {
+                card.className = "p-4 rounded-2xl text-center space-y-1 bg-rose-950/60 border border-rose-700 text-rose-200";
+                badge.className = "inline-block px-3 py-1 rounded-full text-xs font-black bg-rose-800 text-rose-100";
+                badge.innerText = "تنبيه: وصل العداد أو تجاوزه";
+                title.innerText = remaining === 0 ? "وصل العداد تماماً لغاية حد الصيانة والتنبيه!" : `تم تجاوز حد التنبيه بمقدار ${Math.abs(remaining).toLocaleString()} ساعة`;
+                sub.innerText = `الحد المقرر كان: ${interval.toLocaleString()} ساعة - يرجى مراجعة الصيانة وتصفير الساعات.`;
+            }
+        }
+
+        window.calculateDriverStatus = function() {
+            if (currentSystem === 'hours') return;
+
+            const code = document.getElementById('driverVehicleSelect').value;
+            const currentOdo = Number(document.getElementById('driverCurrentValInput').value);
+            const card = document.getElementById('driverStatusCard');
+            const badge = document.getElementById('driverStatusBadge');
+            const title = document.getElementById('driverStatusTitle');
+            const sub = document.getElementById('driverStatusSub');
+            const badgeWrapper = document.getElementById('remainingBadgeWrapper');
+            const badgeValue = document.getElementById('remainingBadgeValue');
+
+            if (!code || isNaN(currentOdo) || currentOdo <= 0) {
+                card.classList.add('hidden');
+                if(badgeWrapper) badgeWrapper.classList.add('hidden');
+                return;
+            }
+
+            const v = windowVehicles.find(item => item.code === code);
+            const unit = 'كم';
+            
+            const lastVal = Number(v.lastOilOdometer) || 0;
+            const interval = Number(v.oilInterval) || 5000;
+            
+            const targetVal = lastVal + interval;
+            const remaining = targetVal - currentOdo;
+
+            card.classList.remove('hidden');
+
+            if (badgeWrapper && badgeValue) {
+                if (remaining > 0) {
+                    badgeValue.innerText = `الكيلومتر المتبقي: ${remaining.toLocaleString()} ${unit}`;
+                    badgeValue.className = "text-base font-black font-mono text-emerald-400";
+                    badgeWrapper.className = "mt-3 p-3 rounded-xl border border-emerald-500/30 bg-emerald-950/40 flex items-center justify-center";
+                } else if (remaining === 0) {
+                    badgeValue.innerText = `0 ${unit} (موعد التبديل الآن)`;
+                    badgeValue.className = "text-base font-black font-mono text-amber-400";
+                    badgeWrapper.className = "mt-3 p-3 rounded-xl border border-amber-500/30 bg-amber-950/40 flex items-center justify-center";
+                } else {
+                    badgeValue.innerText = `متجاوز للاستحقاق بـ ${Math.abs(remaining).toLocaleString()} ${unit}`;
+                    badgeValue.className = "text-base font-black font-mono text-rose-400";
+                    badgeWrapper.className = "mt-3 p-3 rounded-xl border border-rose-500/30 bg-rose-950/40 flex items-center justify-center";
+                }
+                badgeWrapper.classList.remove('hidden');
+            }
+
+            if (remaining > 0) {
+                card.className = "p-4 rounded-2xl text-center space-y-1 bg-emerald-950/60 border border-emerald-700 text-emerald-200";
+                badge.className = "inline-block px-3 py-1 rounded-full text-xs font-black bg-emerald-800 text-emerald-100";
+                badge.innerText = "ضمن حدود التشغيل الطبيعية";
+                title.innerText = `متبقي للتبديل: ${remaining.toLocaleString()} ${unit}`;
+                sub.innerText = `هدف الاستحقاق (${lastVal.toLocaleString()} + ${interval.toLocaleString()}) = ${targetVal.toLocaleString()} ${unit}`;
+            } else {
+                const overLimit = Math.abs(remaining);
+                card.className = "p-4 rounded-2xl text-center space-y-1 bg-rose-950/60 border border-rose-700 text-rose-200";
+                badge.className = "inline-block px-3 py-1 rounded-full text-xs font-black bg-rose-800 text-rose-100";
+                badge.innerText = "تجاوز للاستحقاق - يحتاج صيانة فورية";
+                title.innerText = remaining === 0 ? "وصل العداد لموعد التبديل المباشر!" : `متجاوز بمقدار: ${overLimit.toLocaleString()} ${unit}`;
+                sub.innerText = `عداد الاستحقاق كان عند: ${targetVal.toLocaleString()} ${unit}`;
+            }
+        };
+
+        // دالة إرسال السجل الخاصة بنظام الساعات (تم ربطها بالزر وتعمل بكفاءة)
+        window.submitDriverCheck = async function() {
+            const code = document.getElementById('driverVehicleSelect').value;
+            if (!code) {
+                alert('يرجى اختيار الآلية أولاً!');
+                return;
+            }
+
+            const v = windowVehicles.find(item => item.code === code);
+            if (!v) return;
+
+            const workDate = document.getElementById('driverWorkDateInput').value || new Date().toISOString().split('T')[0];
+            const isPump = (v.subCategory === 'pumps');
+
+            let quantity = 0;
+            let site = '-';
+
+            if (isPump) {
+                quantity = Number(document.getElementById('driverQtyInput').value) || 0;
+                site = document.getElementById('driverSiteInput').value.trim() || 'موقع عام';
+            }
+
+            const fromH = document.getElementById('driverTimeFromHour').value;
+            const fromM = document.getElementById('driverTimeFromMin').value;
+            const fromP = document.getElementById('driverTimeFromPeriod').value;
+            
+            const toH = document.getElementById('driverTimeToHour').value;
+            const toM = document.getElementById('driverTimeToMin').value;
+            const toP = document.getElementById('driverTimeToPeriod').value;
+
+            // حساب عدد ساعات العمل بناءً على وقت الدخول والخروج
+            let startMinutes = (parseInt(fromH) % 12) * 60 + parseInt(fromM) + (fromP === 'مساءً' ? 12 * 60 : 0);
+            let endMinutes = (parseInt(toH) % 12) * 60 + parseInt(toM) + (toP === 'مساءً' ? 12 * 60 : 0);
+            
+            if (endMinutes <= startMinutes) {
+                endMinutes += 24 * 60; // في حال تجاوز منتصف الليل
+            }
+
+            let diffHours = parseFloat(((endMinutes - startMinutes) / 60).toFixed(2));
+            if (diffHours <= 0) diffHours = 1; // قيمة افتراضية في حال التساوي
+
+            const timeRangeStr = `من ${fromH}:${fromM} ${fromP} إلى ${toH}:${toM} ${toP}`;
+            const recordId = "REC-" + Date.now() + "-" + Math.floor(1000 + Math.random() * 9000);
+
+            const recordObj = {
+                id: recordId,
+                vehicleCode: v.code,
+                vehicleName: v.name,
+                systemType: 'hours',
+                subCategory: v.subCategory || 'generators',
+                driver: v.driver,
+                operator: v.operator || '-',
+                recordedVal: diffHours, // عدد ساعات العمل المحسوبة
+                quantity: isPump ? quantity : 0,
+                site: isPump ? site : 'تشغيل مولدة',
+                timeRange: timeRangeStr,
+                workDate: workDate,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                await setDoc(doc(db, "records", recordId), recordObj);
+                alert('تم إرسال وحفظ السجل بنجاح!');
+                // إعادة تعيين الحقول
+                document.getElementById('driverVehicleSelect').value = '';
+                document.getElementById('driverVehicleInfoBox').classList.add('hidden');
+                document.getElementById('remainingBadgeWrapper').classList.add('hidden');
+                document.getElementById('driverStatusCard').classList.add('hidden');
+                document.getElementById('driverSubmitBtn').classList.add('hidden');
+                document.getElementById('hoursSpecificInputs').classList.add('hidden');
+            } catch (error) {
+                console.error("خطأ أثناء حفظ السجل: ", error);
+                alert('حدث خطأ أثناء حفظ السجل، يرجى المحاولة مرة أخرى.');
+            }
+        };
+
+        window.openAdminAuthModal = function() { 
+            const pinInput = document.getElementById('adminPinInput');
+            if(pinInput) pinInput.value = '';
+            document.getElementById('modalAdminAuth').classList.remove('hidden'); 
+        };
+        
+        window.closeAdminAuthModal = function() { 
+            document.getElementById('modalAdminAuth').classList.add('hidden'); 
+        };
+
+        window.submitAdminAuth = function() {
+            const pinInput = document.getElementById('adminPinInput');
+            const pin = pinInput ? pinInput.value.trim() : '';
+            const badge = document.getElementById('roleBadge');
+            const formContainer = document.getElementById('vehicleFormContainer');
+            const serviceBtn = document.getElementById('serviceSubmitBtn');
+
+            if (pin === '1993' || pin === '1983') {
+                currentRole = 'admin';
+                badge.innerText = pin === '1993' ? 'صلاحيات كاملة (مدير)' : 'صلاحيات كاملة (مدخل بيانات)';
+                badge.className = "px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-black";
+                if(formContainer) formContainer.classList.remove('hidden');
+                if(serviceBtn) serviceBtn.disabled = false;
+            } else if (pin === '2222') {
+                currentRole = 'viewer';
+                badge.innerText = 'مشاهدة وطباعة فقط';
+                badge.className = "px-3 py-1 bg-teal-500/20 text-teal-400 border border-teal-500/30 rounded-lg text-xs font-black";
+                if(formContainer) formContainer.classList.add('hidden');
+                if(serviceBtn) serviceBtn.disabled = true;
+            } else {
+                alert('رمز الدخول غير صحيح!');
+                return;
+            }
+
+            closeAdminAuthModal();
+            document.getElementById('logoutBtn').classList.remove('hidden');
+            switchView('admin');
+            populateAdminVehiclesTable();
+            filterRecordsLog();
+            renderServiceReceiptsTable();
+        };
+
+        window.logoutAdmin = function() {
+            currentRole = '';
+            document.getElementById('logoutBtn').classList.add('hidden');
+            switchView('home');
+            filterRecordsLog();
+        };
+
+        window.switchAdminTab = function(tabId) {
+            document.getElementById('atab-content-vehicles').classList.add('hidden');
+            document.getElementById('atab-content-service').classList.add('hidden');
+            document.getElementById('atab-content-records').classList.add('hidden');
+            document.getElementById(`atab-content-${tabId}`).classList.remove('hidden');
+        };
+
+        window.saveVehicleForm = async function(e) {
+            e.preventDefault();
+            if (currentRole === 'viewer') {
+                alert('حساب مشاهدة فقط!');
+                return;
+            }
+
+            const originalCode = document.getElementById('vOriginalCode').value;
+            const code = document.getElementById('vCode').value.trim();
+
+            if (originalCode && originalCode !== code && currentRole !== 'admin') {
+                alert('صلاحية التعديل مقيدة.');
+                return;
+            }
+
+            if (originalCode && originalCode !== code) {
+                await deleteDoc(doc(db, "vehicles", originalCode));
+            }
+
+            const subCat = currentSystem === 'hours' ? document.getElementById('vSubCategory').value : '';
+
+            const vehicleData = {
+                code,
+                name: document.getElementById('vName').value.trim(),
+                systemType: currentSystem,
+                subCategory: subCat,
+                driver: document.getElementById('vDriver').value.trim(),
+                operator: (currentSystem === 'hours' && subCat === 'pumps') ? (document.getElementById('vOperator').value.trim() || '-') : '',
+                lastOilOdometer: Number(document.getElementById('vLastOdo').value) || 0,
+                oilInterval: Number(document.getElementById('vInterval').value) || (currentSystem === 'hours' ? 250 : 5000)
+            };
+
+            await setDoc(doc(db, "vehicles", code), vehicleData);
+            alert('تم حفظ البيانات بنجاح');
+            resetVehicleForm();
+        };
+
+        function populateAdminVehiclesTable() {
+            const tbody = document.getElementById('vehiclesAdminTableBody');
+            const actionHeader = document.getElementById('thActionsHeader');
+            tbody.innerHTML = '';
+
+            if (currentRole === 'viewer') {
+                if(actionHeader) actionHeader.style.display = 'none';
+            } else {
+                if(actionHeader) actionHeader.style.display = 'table-cell';
+            }
+
+            const filteredVehicles = windowVehicles.filter(v => (v.systemType || 'km') === currentSystem);
+            const unit = currentSystem === 'hours' ? 'ساعة' : 'كم';
+
+            filteredVehicles.forEach((v) => {
+                let actionBtns = '';
+                if (currentRole !== 'viewer') {
+                    actionBtns = `
+                        <td class="p-3 text-center space-x-1 space-x-reverse">
+                            <button onclick="editVehicle('${v.code}')" class="px-2 py-1 bg-amber-600/30 text-amber-300 rounded hover:bg-amber-600/50">تعديل</button>
+                            <button onclick="deleteVehicle('${v.code}')" class="px-2 py-1 bg-rose-600/30 text-rose-300 rounded hover:bg-rose-600/50">حذف</button>
+                        </td>
+                    `;
+                }
+
+                const driverOperatorDisplay = currentSystem === 'hours' ? `${v.driver} ${v.operator && v.operator !== '-' ? '/ ' + v.operator : ''}` : v.driver;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 text-sky-400 font-mono">#${v.code}</td>
+                        <td class="p-3 text-white">${v.name} ${v.subCategory === 'generators' ? '(مولدة)' : (v.subCategory === 'pumps' ? '(مضخة)' : '')}</td>
+                        <td class="p-3">${driverOperatorDisplay}</td>
+                        <td class="p-3 font-mono">${v.lastOilOdometer || 0} ${unit}</td>
+                        <td class="p-3 font-mono text-amber-400">${v.oilInterval} ${unit}</td>
+                        ${actionBtns}
+                    </tr>
+                `;
+            });
+        }
+
+        window.editVehicle = function(code) {
+            if (currentRole === 'viewer') return;
+            const v = windowVehicles.find(item => item.code === code);
+            if (!v) return;
+            document.getElementById('vOriginalCode').value = v.code;
+            document.getElementById('vCode').value = v.code;
+            document.getElementById('vName').value = v.name;
+            document.getElementById('vDriver').value = v.driver;
+            
+            if (currentSystem === 'hours') {
+                const subCatSelect = document.getElementById('vSubCategory');
+                if (subCatSelect) {
+                    subCatSelect.value = v.subCategory || 'generators';
+                    onAdminSubCategoryChange();
+                }
+            }
+
+            const vOp = document.getElementById('vOperator');
+            if(vOp) vOp.value = v.operator || '';
+
+            document.getElementById('vLastOdo').value = v.lastOilOdometer || 0;
+            document.getElementById('vInterval').value = v.oilInterval;
+            document.getElementById('vFormTitle').innerText = 'تعديل الآلية';
+        };
+
+        window.deleteVehicle = async function(code) {
+            if (currentRole === 'viewer') return;
+            if (confirm(`هل أنت تأكد من حذف الآلية #${code}؟`)) {
+                await deleteDoc(doc(db, "vehicles", code));
+            }
+        };
+
+        window.deleteRecord = async function(recId) {
+            if (currentRole === 'viewer') {
+                alert('عذراً، حساب مشاهدة فقط ولا يملك صلاحية الحذف!');
+                return;
+            }
+            if (confirm(`هل أنت متأكد من حذف السجل رقم (${recId})؟`)) {
+                try {
+                    await deleteDoc(doc(db, "records", recId));
+                    alert('تم حذف السجل بنجاح.');
+                } catch (error) {
+                    console.error("خطأ أثناء حذف السجل: ", error);
+                    alert('حدث خطأ أثناء محاولة الحذف.');
+                }
+            }
+        };
+
+        window.resetVehicleForm = function() {
+            document.getElementById('vOriginalCode').value = '';
+            document.getElementById('vCode').value = '';
+            document.getElementById('vName').value = '';
+            document.getElementById('vDriver').value = '';
+            const vOp = document.getElementById('vOperator');
+            if(vOp) vOp.value = '';
+            document.getElementById('vLastOdo').value = '';
+            document.getElementById('vInterval').value = '';
+            document.getElementById('vFormTitle').innerText = 'إضافة آلية جديدة للقاعدة';
+            onAdminSubCategoryChange();
+        };
+
+        function populateServiceSelect() {
+            const select = document.getElementById('serviceVehicleSelect');
+            if(!select) return;
+            select.innerHTML = '<option value="">-- اختر الآلية --</option>';
+            
+            const filtered = windowVehicles.filter(v => (v.systemType || 'km') === currentSystem);
+            filtered.forEach(v => {
+                select.innerHTML += `<option value="${v.code}">رمز: ${v.code} - ${v.name} (السائق: ${v.driver || 'غير محدد'})</option>`;
+            });
+            onServiceVehicleSelect();
+        }
+
+        window.onServiceVehicleSelect = function() {
+            const code = document.getElementById('serviceVehicleSelect').value;
+            const box = document.getElementById('serviceSummaryBox');
+            
+            if (!code) { 
+                if(box) box.classList.add('hidden'); 
+                return; 
+            }
+
+            const v = windowVehicles.find(item => item.code === code);
+            if (!v) return;
+
+            const unit = (v.systemType === 'hours') ? 'ساعة' : 'كم';
+            document.getElementById('svcName').innerText = v.name;
+            const prevStored = Number(v.lastOilOdometer) || 0;
+            document.getElementById('svcPrevHours').innerText = prevStored.toLocaleString() + ' ' + unit;
+            if(box) box.classList.remove('hidden');
+        };
+
+        window.submitServiceReset = async function() {
+            if (currentRole === 'viewer') {
+                alert('حساب مشاهدة فقط!');
+                return;
+            }
+
+            const code = document.getElementById('serviceVehicleSelect').value;
+            if(!code) {
+                alert('يرجى اختيار الآلية أولاً!');
+                return;
+            }
+
+            const oilType = document.getElementById('svcOilType').value;
+            const oilQty = document.getElementById('svcOilQty')?.value || '-';
+            const filterVal = document.getElementById('svcFilter').value;
+            const customServiceDate = document.getElementById('svcDateInput').value || new Date().toISOString().split('T')[0];
+            const newOdometerVal = Number(document.getElementById('svcNewOdo').value) || 0;
+
+            const v = windowVehicles.find(item => item.code === code);
+            if (!v) return;
+
+            v.lastOilOdometer = newOdometerVal;
+            v.lastServiceTimestamp = Date.now();
+            await setDoc(doc(db, "vehicles", v.code), v);
+
+            const receiptId = "SRV-" + Math.floor(1000 + Math.random() * 9000);
+            const receiptObj = {
+                id: receiptId,
+                timestamp: customServiceDate,
+                vehicleCode: v.code,
+                vehicleName: v.name,
+                driver: v.driver,
+                operator: v.operator || '-',
+                oilType: oilType || 'قياسي',
+                oilQuantity: oilQty,
+                filter: filterVal,
+                resetHoursAmount: newOdometerVal,
+                systemType: v.systemType || 'km',
+                subCategory: v.subCategory || ''
+            };
+
+            await setDoc(doc(db, "serviceReceipts", receiptId), receiptObj);
+
+            printServiceReceipt(receiptObj);
+            alert('تم اعتماد الصيانة وتحديث العداد السابق بنجاح!');
+        };
+
+        window.printServiceReceipt = function(receipt) {
+            const printTarget = document.getElementById('receipt-print-area');
+            const unit = (receipt.systemType === 'hours') ? 'ساعة' : 'كم';
+            const receiptTitle = (receipt.systemType === 'hours') ? 'وصل تصفير ساعات العمل والصيانة' : 'إيصال تبديل الزيت والصيانة';
+            
+            let oilLine = `<div>الزيت: ${receipt.oilType} (${receipt.oilQuantity || '-'} لتر)</div>`;
+
+            printTarget.innerHTML = `
+                <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 5px;">
+                    <strong style="font-size: 13px;">معامل القالب للكونكريت</strong><br>
+                    <span>${receiptTitle}</span>
+                </div>
+                <div style="margin-top: 5px; border-bottom: 1px dashed #000; padding-bottom: 5px;">
+                    <div>رقم الوصل: #${receipt.id}</div>
+                    <div>الآلية: #${receipt.vehicleCode} - ${receipt.vehicleName}</div>
+                    <div>السائق: ${receipt.driver}</div>
+                    ${oilLine}
+                    <div>الفلتر: ${receipt.filter}</div>
+                    <div>العداد السابق: ${receipt.resetHoursAmount || 0} ${unit}</div>
+                    <div>التاريخ: ${receipt.timestamp}</div>
+                </div>
+                <div style="text-align: center; margin-top: 10px;">تم إصدار الوصل وحفظ القراءة بنجاح</div>
+            `;
+            document.body.className = 'print-receipt-mode';
+            window.print();
+            document.body.className = '';
+        };
+
+        window.deleteServiceReceipt = async function(receiptId) {
+            if (currentRole === 'viewer') {
+                alert('حساب مشاهدة فقط ولا يملك صلاحية الحذف!');
+                return;
+            }
+            if (confirm(`هل أنت متأكد من حذف إيصال الصيانة رقم (${receiptId})؟`)) {
+                try {
+                    await deleteDoc(doc(db, "serviceReceipts", receiptId));
+                    alert('تم حذف الإيصال بنجاح.');
+                } catch (error) {
+                    console.error("خطأ أثناء حذف الإيصال: ", error);
+                    alert('حدث خطأ أثناء الحذف.');
+                }
+            }
+        };
+
+        function renderServiceReceiptsTable() {
+            const tbody = document.getElementById('serviceReceiptsTableBody');
+            const countDisplay = document.getElementById('serviceReceiptCount');
+            if(!tbody) return;
+
+            tbody.innerHTML = '';
+            const filteredReceipts = windowServiceReceipts.filter(r => (r.systemType || 'km') === currentSystem);
+            countDisplay.innerText = filteredReceipts.length;
+
+            if (filteredReceipts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-slate-500">لا توجد إيصالات صيانة مسجلة لهذا النظام حتى الآن</td></tr>';
+                return;
+            }
+
+            filteredReceipts.forEach((r, index) => {
+                const dateStr = r.timestamp || '-';
+                const unit = (r.systemType === 'hours') ? 'ساعة' : 'كم';
+                let actionBtns = `
+                    <div class="flex items-center justify-center gap-1.5">
+                        <button onclick='printServiceReceipt(${JSON.stringify(r)})' class="px-2.5 py-1 bg-sky-600/30 text-sky-300 hover:bg-sky-600/60 rounded-lg text-xs font-black transition flex items-center gap-1">
+                            <i class="fa-solid fa-print"></i>
+                            <span>طباعة</span>
+                        </button>
+                `;
+                if (currentRole !== 'viewer') {
+                    actionBtns += `
+                        <button onclick="deleteServiceReceipt('${r.id}')" class="px-2.5 py-1 bg-rose-600/30 text-rose-300 hover:bg-rose-600/60 rounded-lg text-xs font-black transition flex items-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>حذف</span>
+                        </button>
+                    `;
+                }
+                actionBtns += `</div>`;
+
+                const oilInfoText = `${r.oilType || '-'} (كمية الزيت: ${r.oilQuantity || '-'} لتر) - ${r.filter || '-'}`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3">${index + 1}</td>
+                        <td class="p-3 text-white">#${r.vehicleCode} - ${r.vehicleName}</td>
+                        <td class="p-3">${r.driver}</td>
+                        <td class="p-3">${oilInfoText}</td>
+                        <td class="p-3 font-mono text-amber-400">العداد السابق: ${r.resetHoursAmount || 0} ${unit}</td>
+                        <td class="p-3 text-slate-400">${dateStr}</td>
+                        <td class="p-3 text-center">${actionBtns}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function populateRecordsVehicleDropdown() {
+            const select = document.getElementById('recFilterVehicle');
+            if(!select) return;
+            select.innerHTML = '<option value="">كافة الآليات</option>';
+            const filtered = windowVehicles.filter(v => (v.systemType || 'km') === currentSystem);
+            filtered.forEach(v => {
+                select.innerHTML += `<option value="${v.code}">${v.code} - ${v.name}</option>`;
+            });
+        }
+
+        window.filterRecordsLog = function() {
+            const monthVal = document.getElementById('recFilterMonth').value;
+            const yearVal = document.getElementById('recFilterYear').value;
+            const vehicleVal = document.getElementById('recFilterVehicle').value;
+
+            const systemRecords = windowRecords.filter(r => (r.systemType || 'km') === currentSystem);
+
+            filteredRecords = systemRecords.filter(r => {
+                const rDate = new Date(r.workDate || r.timestamp);
+                const rYear = rDate.getFullYear().toString();
+                const rMonth = String(rDate.getMonth() + 1).padStart(2, '0');
+
+                const matchMonth = !monthVal || rMonth === monthVal;
+                const matchYear = !yearVal || rYear === yearVal;
+                const matchVehicle = !vehicleVal || r.vehicleCode === vehicleVal;
+
+                return matchMonth && matchYear && matchVehicle;
+            });
+
+            filteredRecords.sort((a, b) => new Date(a.workDate || a.timestamp) - new Date(b.workDate || b.timestamp));
+
+            document.getElementById('recCountDisplay').innerText = filteredRecords.length;
+
+            const isHours = currentSystem === 'hours';
+            const totalHoursWrapper = document.getElementById('recTotalHoursWrapper');
+            const totalHoursDisplay = document.getElementById('recTotalHoursDisplay');
+            const totalQtyWrapper = document.getElementById('recTotalQtyWrapper');
+            const totalQtyDisplay = document.getElementById('recTotalQtyDisplay');
+
+            if (isHours) {
+                let totalH = 0;
+                let totalQ = 0;
+                filteredRecords.forEach(r => {
+                    totalH += Number(r.recordedVal) || 0;
+                    totalQ += Number(r.quantity) || 0;
+                });
+
+                if (totalHoursDisplay) totalHoursDisplay.innerText = totalH.toLocaleString();
+                if (totalHoursWrapper) totalHoursWrapper.classList.remove('hidden');
+
+                if (totalQtyDisplay) totalQtyDisplay.innerText = totalQ.toLocaleString();
+                if (totalQtyWrapper) totalQtyWrapper.classList.remove('hidden');
+            } else {
+                if (totalHoursWrapper) totalHoursWrapper.classList.add('hidden');
+                if (totalQtyWrapper) totalQtyWrapper.classList.add('hidden');
+            }
+
+            const tbody = document.getElementById('recordsAdminTableBody');
+            const actionHeaderTh = document.getElementById('thRecordsActionHeader');
+            tbody.innerHTML = '';
+
+            if (currentRole === 'viewer') {
+                if(actionHeaderTh) actionHeaderTh.style.display = 'none';
+            } else {
+                if(actionHeaderTh) actionHeaderTh.style.display = 'table-cell';
+            }
+
+            if (filteredRecords.length === 0) {
+                const colSpanCount = isHours ? (currentRole === 'viewer' ? 7 : 8) : (currentRole === 'viewer' ? 7 : 8);
+                tbody.innerHTML = `<tr><td colspan="${colSpanCount}" class="p-4 text-center text-slate-500">لا توجد سجلات مطابقة للفلتر المخصص</td></tr>`;
+                return;
+            }
+
+            filteredRecords.forEach((r, index) => {
+                const dateStr = r.workDate || new Date(r.timestamp).toLocaleDateString('ar-EG');
+                const driverOperatorCol = isHours ? `${r.driver || '-'}${r.operator && r.operator !== '-' ? ' / ' + r.operator : ''}` : (r.driver || '-');
+
+                let deleteActionTd = '';
+                if (currentRole !== 'viewer') {
+                    deleteActionTd = `
+                        <td class="p-3 text-center">
+                            <button onclick="deleteRecord('${r.id}')" class="px-2.5 py-1 bg-rose-600/30 text-rose-300 hover:bg-rose-600/60 rounded-lg text-xs font-black transition flex items-center gap-1 mx-auto">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>حذف</span>
+                            </button>
+                        </td>
+                    `;
+                }
+
+                if (isHours) {
+                    const isGen = r.subCategory === 'generators';
+                    const hoursVal = `${r.recordedVal || 0} س`;
+                    const qtyVal = isGen ? '-' : `${r.quantity || 0} m³`;
+                    const siteInfo = isGen ? `وقت التشغيل: ${r.timeRange || '-'}` : `${r.site || '-'} (${r.timeRange || '-'})`;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-3">${index + 1}</td>
+                            <td class="p-3 text-white">#${r.vehicleCode} - ${r.vehicleName}</td>
+                            <td class="p-3">${driverOperatorCol}</td>
+                            <td class="p-3 font-mono text-sky-400">${hoursVal}</td>
+                            <td class="p-3 font-mono text-teal-400">${qtyVal}</td>
+                            <td class="p-3">${siteInfo}</td>
+                            <td class="p-3 text-slate-400">${dateStr}</td>
+                            ${deleteActionTd}
+                        </tr>
+                    `;
+                } else {
+                    const colValue = r.recordedVal ? `${r.recordedVal} كم` : '-';
+                    const colSiteInfo = r.recordedVal ? 'تسجيل فحص يومي' : 'عملية صيانة';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-3">${index + 1}</td>
+                            <td class="p-3 text-white">#${r.vehicleCode} - ${r.vehicleName}</td>
+                            <td class="p-3">${driverOperatorCol}</td>
+                            <td class="p-3 font-mono text-sky-400">${colValue}</td>
+                            <td class="p-3">${colSiteInfo}</td>
+                            <td class="p-3 text-slate-400">${dateStr}</td>
+                            ${deleteActionTd}
+                        </tr>
+                    `;
+                }
+            });
+        };
+
+        window.printFilteredReportA4 = function() {
+            const printBody = document.getElementById('print-a4-table-body');
+            const detailsHeader = document.getElementById('reportFilterDetails');
+            const titleHeader = document.getElementById('printReportTitle');
+            
+            const sysName = currentSystem === 'hours' ? 'نظام الساعات' : 'نظام الكيلومتر';
+            titleHeader.innerText = `تقرير سجلات وجولات (${sysName}) - [من الأقدم إلى الأحدث]`;
+
+            const monthVal = document.getElementById('recFilterMonth').value || 'الكل';
+            const yearVal = document.getElementById('recFilterYear').value || 'الكل';
+            const vehicleVal = document.getElementById('recFilterVehicle').value || 'جميع الآليات';
+
+            const isHours = currentSystem === 'hours';
+            let totalH = 0;
+            let totalQ = 0;
+
+            if (isHours) {
+                filteredRecords.forEach(r => {
+                    totalH += Number(r.recordedVal) || 0;
+                    totalQ += Number(r.quantity) || 0;
+                });
+            }
+
+            detailsHeader.innerText = `التصفية: السنة (${yearVal}) - الشهر (${monthVal}) - الآلية (${vehicleVal}) ${isHours ? '| إجمالي الساعات: ' + totalH.toLocaleString() + ' ساعة | إجمالي الكونكريت: ' + totalQ.toLocaleString() + ' m³' : ''} | الترتيب: من الأقدم إلى الأحدث`;
+            printBody.innerHTML = '';
+
+            if (filteredRecords.length === 0) {
+                alert('لا توجد سجلات مطابقة للطباعة!');
+                return;
+            }
+
+            const recordsToPrint = [...filteredRecords].sort((a, b) => new Date(a.workDate || a.timestamp) - new Date(b.workDate || b.timestamp));
+
+            recordsToPrint.forEach((r, index) => {
+                const dateStr = r.workDate || new Date(r.timestamp).toLocaleDateString('ar-EG');
+                let driverOperatorCol = isHours ? `${r.driver || '-'}${r.operator && r.operator !== '-' ? ' / ' + r.operator : ''}` : (r.driver || '-');
+
+                if (isHours) {
+                    const isGen = r.subCategory === 'generators';
+                    const hoursVal = `${r.recordedVal || 0} س`;
+                    const qtyVal = isGen ? '-' : `${r.quantity || 0} m³`;
+                    const siteInfo = isGen ? `وقت التشغيل: ${r.timeRange || '-'}` : `${r.site || '-'} (${r.timeRange || '-'})`;
+
+                    printBody.innerHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>#${r.vehicleCode} - ${r.vehicleName}</td>
+                            <td>${driverOperatorCol}</td>
+                            <td>${hoursVal}</td>
+                            <td>${qtyVal}</td>
+                            <td>${siteInfo}</td>
+                            <td>${dateStr}</td>
+                        </tr>
+                    `;
+                } else {
+                    const colValue = `${r.recordedVal || '-'} كم`;
+                    const colSiteInfo = 'فحص دوري';
+
+                    printBody.innerHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>#${r.vehicleCode} - ${r.vehicleName}</td>
+                            <td>${driverOperatorCol}</td>
+                            <td>${colValue}</td>
+                            <td>${colSiteInfo}</td>
+                            <td>${dateStr}</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (isHours) {
+                printBody.innerHTML += `
+                    <tr style="font-weight: bold; background-color: #f1f5f9 !important;">
+                        <td colspan="3" style="text-align: left; padding: 8px;">الإجمالي المجمّع:</td>
+                        <td style="text-align: center; padding: 8px; color: #000;">${totalH.toLocaleString()} ساعة</td>
+                        <td style="text-align: center; padding: 8px; color: #000;">${totalQ.toLocaleString()} m³</td>
+                        <td colspan="2" style="text-align: center; padding: 8px; color: #000;">-</td>
+                    </tr>
+                `;
+            }
+
+            document.body.className = 'print-report-mode';
+            window.print();
+            document.body.className = '';
+        };
     </script>
 </body>
 </html>
